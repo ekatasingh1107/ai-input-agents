@@ -180,6 +180,45 @@ No background processes needed. The hooks fire automatically inside Codex CLI.
 
 ---
 
+## Step 4: Watch an already-running Codex session (optional)
+
+Hooks only work for sessions started **after** you created `hooks.json`. If you have a Codex session already running that you don't want to restart, use `codex-session-watcher.sh` to monitor it externally.
+
+### 4a. Find your active session file
+
+```bash
+# Lists session files, most recent first
+ls -lt ~/.codex/sessions/2026/*/*/*.jsonl | head -5
+```
+
+### 4b. Start the watcher
+
+```bash
+# Watch the session, notify after 10 seconds of inactivity
+./codex-session-watcher.sh /path/to/session.jsonl 10
+```
+
+Or auto-detect the latest session:
+
+```bash
+./codex-session-watcher.sh
+```
+
+### 4c. Run in background
+
+```bash
+nohup bash ./codex-session-watcher.sh /path/to/session.jsonl 10 > /tmp/codex-session-watcher.log 2>&1 &
+echo "Watcher PID: $!"
+```
+
+When the session transcript stops getting new lines for 10 seconds, you'll get the "Codex is waiting for input" dialog.
+
+To stop it: `kill <PID>`
+
+This is a one-time workaround. New sessions will use the native hooks automatically.
+
+---
+
 ## Notification reference
 
 | Agent | Event | Message | Sound |
@@ -188,6 +227,7 @@ No background processes needed. The hooks fire automatically inside Codex CLI.
 | Claude Code | Task complete | "Task complete" | Hero |
 | Codex CLI | Needs approval | "Codex needs your approval" | Glass |
 | Codex CLI | Task complete | "Task complete" | Hero |
+| Codex CLI | Waiting for input (watcher) | "Codex is waiting for input" | Glass |
 
 **Available macOS sounds:** Glass, Hero, Basso, Funk, Ping, Pop, Purr, Sosumi, Submarine, Tink
 
@@ -225,6 +265,7 @@ Add them to your hooks config in the same format to get notifications for those 
 | File | What it does |
 |---|---|
 | `notify.sh` | Notification engine. macOS dialog + sound + iTerm2 tab jump |
+| `codex-session-watcher.sh` | Monitors a live Codex session transcript for idle periods. For already-running sessions |
 
 ---
 
